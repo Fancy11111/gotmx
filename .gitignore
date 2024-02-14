@@ -1,3 +1,4 @@
 *_templ.go
 node_modules
 tmp
+static/css/tailwind.css
