@@ -2,6 +2,7 @@ package routes
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/Fancy11111/gotmx/components"
 	"github.com/Fancy11111/gotmx/persistence"
@@ -59,6 +60,80 @@ func SetupRoutes(app *fiber.App, store *persistence.Queries) {
 			log.Printf("error inserting: %v\n", err)
 			return err
 		}
+		return renderView(c, components.Project(newProject))
+	})
+
+	app.Delete("/projects/:id", func(c *fiber.Ctx) error {
+		id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+		if err != nil {
+			log.Printf("Error parsing id %d: %v", id, err)
+			return err
+		}
+		err = store.DeleteProject(c.Context(), id)
+		if err != nil {
+			log.Printf("Error deleting project with id %d: %v", id, err)
+			return err
+		}
+		c.Status(200)
+		return nil
+	})
+
+	app.Get("/projects/:id/edit", func(c *fiber.Ctx) error {
+		id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+		if err != nil {
+			log.Printf("Error parsing id %d: %v", id, err)
+			return err
+		}
+
+		project, err := store.GetProjectById(c.Context(), id)
+		if err != nil {
+			log.Printf("Error loading project with id %d: %v", id, err)
+			return err
+		}
+
+		return renderView(c, components.ProjectEdit(project))
+	})
+
+	app.Get("/projects/:id", func(c *fiber.Ctx) error {
+		id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+		if err != nil {
+			log.Printf("Error parsing id %d: %v", id, err)
+			return err
+		}
+
+		project, err := store.GetProjectById(c.Context(), id)
+		if err != nil {
+			log.Printf("Error loading project with id %d: %v", id, err)
+			return err
+		}
+
+		return renderView(c, components.Project(project))
+	})
+
+	app.Put("/projects/:id", func(c *fiber.Ctx) error {
+		id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+		if err != nil {
+			log.Printf("Error parsing id %d: %v", id, err)
+			return err
+		}
+
+		p := new(NewProject)
+		if err := c.BodyParser(p); err != nil {
+			log.Printf("error parsing: %v\n", err)
+			return err
+		}
+
+		log.Printf("Parsed request: %v\n", p)
+
+		newProject, err := store.UpdateProject(c.Context(), persistence.UpdateProjectParams{
+			ID:   id,
+			Name: p.Name,
+		})
+		if err != nil {
+			log.Printf("error inserting: %v\n", err)
+			return err
+		}
+
 		return renderView(c, components.Project(newProject))
 	})
 

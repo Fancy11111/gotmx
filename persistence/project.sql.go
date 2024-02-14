@@ -10,6 +10,15 @@ import (
 	"database/sql"
 )
 
+const deleteProject = `-- name: DeleteProject :exec
+delete from projects where id = ?1
+`
+
+func (q *Queries) DeleteProject(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteProject, id)
+	return err
+}
+
 const findProjectsByName = `-- name: FindProjectsByName :many
 select id, name from projects
 where name like ('%' || ?1 || '%')
@@ -84,6 +93,22 @@ insert into projects(name) values (?1) returning id, name
 
 func (q *Queries) InsertProject(ctx context.Context, name string) (Project, error) {
 	row := q.db.QueryRowContext(ctx, insertProject, name)
+	var i Project
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const updateProject = `-- name: UpdateProject :one
+update projects set name = ?1 where id = ?2 returning id, name
+`
+
+type UpdateProjectParams struct {
+	Name string
+	ID   int64
+}
+
+func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error) {
+	row := q.db.QueryRowContext(ctx, updateProject, arg.Name, arg.ID)
 	var i Project
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err

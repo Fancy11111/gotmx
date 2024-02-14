@@ -12,3 +12,9 @@ where name like ('%' || @name || '%');
 
 -- name: InsertProject :one
 insert into projects(name) values (@name) returning *;
+
+-- name: UpdateProject :one
+update projects set name = @name where id = @id returning *; 
+
+-- name: DeleteProject :exec
+delete from projects where id = @id;
