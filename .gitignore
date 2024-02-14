@@ -2,4 +2,3 @@
 node_modules
 tmp
 static/css/tailwind.css
-*.sql.go
