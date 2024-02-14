@@ -1,0 +1,25 @@
+package components
+
+import (
+	"fmt"
+	"github.com/Fancy11111/gotmx/persistence"
+)
+
+templ Projects(projects []persistence.Project) {
+	<h1 class="text-xl text-blue-500">Projects test</h1>
+	<ul id="project-list">
+		for _, p := range projects {
+            @Project(p)
+		}
+	</ul>
+
+	<form hx-post="/projects" hx-swap="beforeend" hx-target="#project-list">
+		<label for="name">New Project Name:</label>
+		<input name="name" type="text"/>
+		<button>Add Project</button>
+	</form>
+}
+
+templ Project(project persistence.Project) {
+	<li id={ fmt.Sprint(project.ID) }>{ project.Name }</li>
+}

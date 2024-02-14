@@ -1,0 +1,11 @@
+package components
+
+import "github.com/Fancy11111/gotmx/persistence"
+
+templ Tasks(tasks []persistence.Task) {
+    <ul>
+    for _, t := range tasks {
+        <li> {t.Name} </li>
+    }
+    </ul>
+}
