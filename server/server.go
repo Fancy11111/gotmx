@@ -16,6 +16,13 @@ func setupRoutes(app *fiber.App, handler routes.Handlers) {
 
 	projects := app.Group("/projects")
 
+	projects.Use(func(c *fiber.Ctx) error {
+		hx := len(c.GetReqHeaders()["Hx-Request"]) > 0
+
+		log.Debug().Bool("hx-request", hx).Msg("Is HX-Request?")
+		return c.Next()
+	})
+
 	app.Get("/ping", func(ctx *fiber.Ctx) error {
 		return ctx.SendString("pong")
 	})
